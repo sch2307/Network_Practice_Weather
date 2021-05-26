@@ -2,6 +2,8 @@
 import React, {useEffect, useContext, useState} from 'react';
 import {
   SafeAreaView,
+  ImageBackground,
+  TouchableOpacity,
   StyleSheet,
   ScrollView,
   View,
@@ -15,6 +17,8 @@ import {
 import {CoreContext, CoreConsumer} from './core/CoreManagement';
 
 import {useNavigation} from '@react-navigation/native';
+import Camera from './components/Camera';
+import Icon from 'react-native-vector-icons/dist/FontAwesome';
 
 export default function View1(props) {
   const navigation = useNavigation();
@@ -28,45 +32,53 @@ export default function View1(props) {
   console.log(result.tag + ' View1 ');
   console.log(result.tag + ' View1 ' + result.value);
 
-  const [backValue, SetbackValue] = useState(result.value);
+  const [img, setImg] = useState(null);
 
-  useEffect(() => {
-    const focus = props.navigation.addListener('focus', async () => {
-      console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>> View1 Refresh');
-      console.log(
-        '>>>>>>>>>>>>>>>>>>>>>>>>>>>> props ' + JSON.stringify(props),
-      );
-      SetbackValue(result.value);
-    });
-    return focus;
-  }, [props, props.navigation]);
+  function onPicture({uri}) {
+    setImg(uri);
+    navigation.navigate('View2', {imageResource: uri});
+  }
 
-  /*
-  context 변화를 구독하는 React 컴포넌트입니다. 함수 컴포넌트안에서 context를 읽기 위해서 쓸 수 있습니다.
-  Context.Consumer의 자식은 함수여야합니다. 이 함수는 context의 현재값을 받고 React 노드를 반환합니다.
-  이 함수가 받는 value 매개변수 값은 해당 context의 Provider 중 상위 트리에서 가장 가까운 Provider의
-  value prop과 동일합니다. 상위에 Provider가 없다면 value 매개변수 값은 createContext()에 보냈던 defaultValue와 동일할 것입니다.
-  */
+  function onBackToCamera() {
+    setImg(null);
+  }
+
   return (
     <CoreConsumer>
       {({value, SetValue}) => (
-        <View
-          style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            flex: 1,
-            backgroundColor: '#828192',
-          }}>
-          <Text>View1 : {backValue} </Text>
-          <Button
-            title="Next"
-            onPress={() => {
-              SetValue(backValue + 1);
-              navigation.navigate('View2');
-            }}
-          />
-        </View>
+        <SafeAreaView style={{flex: 1}}>
+          {img ? (
+            <>
+              <View style={{flex: 1}}>
+                <ImageBackground source={{uri: img}} style={{flex: 1}}>
+                  <TouchableOpacity
+                    activeOpacity={0.5}
+                    style={styles.btnAlignment}
+                    onPress={() => {
+                      onBackToCamera();
+                    }}>
+                    <Icon name="camera" size={50} color="#000" />
+                  </TouchableOpacity>
+                </ImageBackground>
+              </View>
+            </>
+          ) : (
+            <Camera onPicture={onPicture} />
+          )}
+        </SafeAreaView>
       )}
     </CoreConsumer>
   );
 }
+
+const styles = StyleSheet.create({
+  btnAlignment: {
+    flex: 1,
+    height: 50,
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginTop: 590,
+    marginBottom: 20,
+  },
+});

@@ -11,7 +11,7 @@ class LocationInput extends Component {
   _handleTextChange = event => {
     let zip = event.nativeEvent.text;
     console.log('TEST ZIP : ' + zip);
-    this.props.onGetLocation(zip);
+    this.props.onGetLocxation(zip);
   };
 
   render() {

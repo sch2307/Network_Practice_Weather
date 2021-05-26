@@ -17,13 +17,6 @@ async function hasAndroidPermission() {
   return status === 'granted';
 }
 
-async function savePicture() {
-  if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
-    return;
-  }
-  CameraRoll.save(tag, {type, album});
-}
-
 class PhotoBackdrop extends Component {
   constructor(props) {
     super(props);
@@ -33,9 +26,9 @@ class PhotoBackdrop extends Component {
   componentDidMount() {
     CameraRoll.getPhotos({first: 10}).then(
       data => {
-        let u = {uri: data.edges[0].node.image.uri};
-        Alert.alert('(debug)', JSON.stringify(u));
-        this.setState({photoSource: {uri: data.edges[0].node.image.uri}});
+        let u = {uri: this.props.uri};
+        //Alert.alert('(debug)', JSON.stringify(u));
+        this.setState({photoSource: {uri: this.props.uri}});
       },
       error => {
         console.warn(error);
@@ -44,12 +37,10 @@ class PhotoBackdrop extends Component {
   }
 
   render() {
-    //let p = this.state.photoSource;
     return (
       <ImageBackground
         style={styles.backdrop}
         source={this.state.photoSource}
-        //source={require("/cache/image_cache/7fa20e72-df0b-4c07-84f2-b1f546d94704.jpg")}
         resizeMode="cover">
         {this.props.children}
       </ImageBackground>
